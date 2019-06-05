@@ -27,7 +27,10 @@ sent="Kids and children like to play and they like to eat"
 #sent="The ball is rolling and the award was given to Obama and the pen was given to me and my friend and was played with by me"
 #sent="Plants take in so much of oxygen and carbondioxide and die. Trees give us shade but they are short sometimes"
 #sent="The book was writing a boy and a letter was given to a girl and rewritten"
-sent="Ram and Sita go to eat food,he comes to buy milk"
+sent="A smart man goes to eat food"
+#sent="Krishna goes to work and does dance. He is very smart."
+sent="A strong man and beautiful woman and a good boy eat food and drink milk"
+sent="A strong man eats food and drinks milk"
 words = word_tokenize(sent) 
 arr=[]
    
@@ -79,13 +82,14 @@ while(i<len(tagged_list)-1):
 		if(i<len(tagged_list)-2 and tagged_list[i+1][1].startswith("V") and not tagged_list[i+1][1].startswith("VBG")):
 			tagged_list[noun][2]=1
 	i=i+1
-print(tagged_list)
+#print(tagged_list)
 
 
 n=[[]]
 ind=0
 i=0
 subj=""
+lis=[]
 while(i<len(tagged_list)-1):
 	if(tagged_list[i][2]==1 and tagged_list[i][1]!="PRP" ):
 		subj=tagged_list[i][0]
@@ -98,25 +102,90 @@ while(i<len(tagged_list)-1):
 				tagged_list[j][2]=2
 				subj=subj+" "+tagged_list[i][0]+" "+tagged_list[j][0]
 			elif(tagged_list[j][2]==1):
-				n.append([tagged_list[x][0] for x in range(ind,i) ])
+				for x in range(ind,i):
+					if(tagged_list[x][1]=="CC"  or tagged_list[x][0] in conj or tagged_list[x][0]=="," or tagged_list[x][0]==";" or tagged_list[x][0]=="."):
+						if(x>ind and x<i-1):
+							if((tagged_list[x-1][2]== 1 or tagged_list[x-1][2]==2)):
+								y=x+1
+								while(y<len(tagged_list)-1 and tagged_list[y][1].find("NN")==-1 and tagged_list[y][1].find("VB")==-1):
+									y=y+1
+								if(tagged_list[y][2]==1 or tagged_list[y][2]==2):
+									if(len(lis)==0):
+										lis.append(x-1)
+									lis.append(y)
+				print(lis)
+				for l in range(len(lis)):
+					n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
+				if(len(lis)==0):
+					n.append([tagged_list[x][0] for x in range(ind,i)])
+				lis=[]
 				ind =i+1
 			elif(j+1<len(tagged_list)-1):
 				if((tagged_list[j+1][1]!="CC" and (tagged_list[j+1][1].find("VB")!=-1or tagged_list[j+1][1].find("NN")!=-1 or tagged_list[j+1][1].find("RB")!=-1))):
-					n.append([tagged_list[x][0] for x in range(ind,i)])
-					ind=i
 					print(1,tagged_list[i][0],i)
+					for x in range(ind,i):
+						if(tagged_list[x][1]=="CC"  or tagged_list[x][0] in conj or tagged_list[x][0]=="," or tagged_list[x][0]==";" or tagged_list[x][0]=="."):
+							if(x>ind and x<i-1):
+								if((tagged_list[x-1][2]== 1 or tagged_list[x-1][2]==2)):
+									y=x+1
+									while(y<len(tagged_list)-1 and tagged_list[y][1].find("NN")==-1 and tagged_list[y][1].find("VB")==-1):
+										y=y+1
+									if(tagged_list[y][2]==1 or tagged_list[y][2]==2):
+										if(len(lis)==0):
+											lis.append(x-1)
+										lis.append(y)
+					print(lis)
+					for l in range(len(lis)):
+						n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
+					if(len(lis)==0):
+						n.append([tagged_list[x][0] for x in range(ind,i)])
+					lis=[]
+					ind=i
 		elif(j<len(tagged_list)-1 and tagged_list[j][1].find("VB")!=-1):
 			if(i+1<len(tagged_list)-1 and tagged_list[i+1][1]!="PRP"):
 				tagged_list[i][0]=subj
-			n.append([tagged_list[x][0] for x in range(ind,i) ] )
-			ind=i;
 			print(2,tagged_list[i][0],i)
+			for x in range(ind,i): #TO SEPARATE SUBJECTS
+				if(tagged_list[x][1]=="CC"  or tagged_list[x][0] in conj or tagged_list[x][0]=="," or tagged_list[x][0]==";" or tagged_list[x][0]=="."):
+					if(x>ind and x<i-1):
+						if((tagged_list[x-1][2]== 1 or tagged_list[x-1][2]==2)):
+							y=x+1
+							while(y<len(tagged_list)-1 and tagged_list[y][1].find("NN")==-1 and tagged_list[y][1].find("VB")==-1):
+								y=y+1
+							if(tagged_list[y][2]==1 or tagged_list[y][2]==2):
+								if(len(lis)==0):
+									lis.append(x-1)
+								lis.append(y)
+			print(lis)
+			for l in range(len(lis)):
+				n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
+			if(len(lis)==0):
+				n.append([tagged_list[x][0] for x in range(ind,i)])
+			lis=[]
+			ind=i;
+
 	#print(subj)
 	if(tagged_list[i][1]=="PRP"):
 		tagged_list[i][0]=subj
-		print("Pronoun ",tagged_list[i][0])
 	i=i+1
-n.append([tagged_list[x][0] for x in range(ind,i)])
+for x in range(ind,i):
+	if(tagged_list[x][1]=="CC"  or tagged_list[x][0] in conj or tagged_list[x][0]=="," or tagged_list[x][0]==";" or tagged_list[x][0]=="."):
+		if(x>ind and x<i-1):
+			if((tagged_list[x-1][2]== 1 or tagged_list[x-1][2]==2)):
+				y=x+1
+				while(y<len(tagged_list)-1 and tagged_list[y][1].find("NN")==-1 and tagged_list[y][1].find("VB")==-1):
+					y=y+1
+				if(tagged_list[y][2]==1 or tagged_list[y][2]==2):
+					if(len(lis)==0):
+						lis.append(x-1)
+					lis.append(y)
+print(lis)
+for l in range(len(lis)):
+	n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
+if(len(lis)==0):
+	n.append([tagged_list[x][0] for x in range(ind,i)])
+lis=[]
+print(tagged_list)
 print(n)
 
 
