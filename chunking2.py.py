@@ -34,9 +34,12 @@ sent="These stories concern the origin and the nature of the world, the lives an
 # sent="A man buys some bread and butter"
 # #sent="Water heats and rises into vapor"
 # #sent="Ram and Sita buy a bat and play happily"
-sent="Ram buys some bread and butter.Sita sings songs and can dance well"
+sent="Ram buys some bread and butter and Sita sings songs and can dance well"
 #sent="Sita sings songs and can dance well"
-sent="A green plant takes in oxygen and water and gives out carbondioxide and water"
+#sent="A green plant takes in oxygen and water and gives out carbondioxide and water"
+#sent="Sita dances and swims"
+#sent="Sita was thirsty so she drank juice and water after lunch"
+#sent="Ram buys a bat and ball and Sita plays the keyboard"
 words = word_tokenize(sent) 
 arr=[]
    
@@ -88,7 +91,7 @@ while(i<len(tagged_list)-1):
 		if(i<len(tagged_list)-2 and tagged_list[i+1][1].startswith("V") and not tagged_list[i+1][1].startswith("VBG")):
 			tagged_list[noun][2]=1
 	i=i+1
-#print(tagged_list)
+print(tagged_list)
 
 
 n=[[]]
@@ -114,7 +117,7 @@ while(i<len(tagged_list)-1):
 				if(ind2!=-1 and ind2!=ind):
 					print("Hi")
 					find=find+1					
-					while(find<len(tagged_list) and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
+					while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 						find=find+1
 					n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 					ind2=-1
@@ -139,10 +142,11 @@ while(i<len(tagged_list)-1):
 				ind =i+1
 
 			else:
+				print("Entered at ",i)
 				if(ind2==-1):
 					ind2=ind
 				ct=ind2
-				while((tagged_list[ct][1].find("NN")==-1) or (tagged_list[ct][2]==1 or tagged_list[ct][2]==2)):
+				while(ct<i-1 and ((tagged_list[ct][1].find("NN")==-1) or (tagged_list[ct][2]==1 or tagged_list[ct][2]==2 ))):
 					ct=ct+1
 				print("Find= ",find,"Ind= ",ind2,"ct= ",ct,"flag= ",flag)
 				if(flag!=ind2):
@@ -151,7 +155,7 @@ while(i<len(tagged_list)-1):
 					find=ct
 				else:
 					find=find+1					
-					while(find<len(tagged_list) and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
+					while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 						find=find+1
 					n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 				ind=i+1 #ADDED NOW
@@ -166,7 +170,7 @@ while(i<len(tagged_list)-1):
 			if(ind2!=-1 and ind2!=ind):
 				print("Hi")
 				find=find+1					
-				while(find<len(tagged_list) and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
+				while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 					find=find+1
 				n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 				ind2=-1
@@ -197,8 +201,9 @@ while(i<len(tagged_list)-1):
 if(ind2!=-1 and ind2!=ind):
 	print("ind= ",ind,"ind2=",ind2," i=",i)
 	find=find+1					
-	while(find<len(tagged_list) and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
+	while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 		find=find+1
+	print("Printing..",find)
 	n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 	ind2=-1;
 else:	
