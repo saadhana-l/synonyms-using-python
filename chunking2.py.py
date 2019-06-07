@@ -1,6 +1,4 @@
 from nltk.corpus import stopwords
-
-# You will have to download the set of stop words the first time
 import nltk
 #nltk.download('stopwords')
 from nltk.stem import PorterStemmer 
@@ -40,6 +38,7 @@ sent="Ram buys some bread and butter and Sita sings songs and can dance well"
 #sent="Sita dances and swims"
 #sent="Sita was thirsty so she drank juice and water after lunch"
 #sent="Ram buys a bat and ball and Sita plays the keyboard"
+sent="Trump and the girl have been bad presidents.They have been formidable candidates in the elections."
 words = word_tokenize(sent) 
 arr=[]
    
@@ -47,26 +46,40 @@ for w in words:
     arr.append(w) 
 li=[word for word in arr]
 #print(li)
-stop_words = set(stopwords.words('english'))
+# stop_words = set(stopwords.words('english'))
 conj = set(('and', 'or' ,'but','while','so','because'))
-operators=set(('were','is','are','was','which','since','not','for','to','of'))
-#retain_operators=set(('so','because','since'))
-stop = stop_words - operators - conj
-#li=[word for word in arr if word not in stop] #WE ARE NOT USING STOP WORDS BEFORE CHUNKING
-#print(li)
+# operators=set(('were','is','are','was','which','since','not','for','to','of'))
+# #retain_operators=set(('so','because','since'))
+# stop = stop_words - operators - conj
+# #li=[word for word in arr if word not in stop] #WE ARE NOT USING STOP WORDS BEFORE CHUNKING
+# #print(li)
 
 
 
 import spacy
 nlp = spacy.load('en_core_web_sm')
-#sent = "These stories concern the origin and the nature of the world, the lives and activities of deities, heroes, and mythological creatures, and the origins and significance of the ancient Greeks' own cult and ritual practices"
-
-
-#doc = nlp('Ram and sita play with their bat and ball and sing beautifully and some small kids and pretty children go out to eat food and dance well')
+import neuralcoref
 doc=nlp(sent)
+coref = neuralcoref.NeuralCoref(nlp.vocab) # initialize the neuralcoref with spacy's vocabulary
+nlp.add_pipe(coref, name='neuralcoref') #add the coref model to pipe
+
+def resolve_co_reference(text):
+	'''
+	The coref model calculates the probabilities of links between The main occurence and a reference of that
+	main occurence and on the basis of that replaces every reference with the main occurence it is referring to
+	'''
+	doc = nlp(text)
+	if doc._.has_coref: ## if coreference is possible
+		return doc._.coref_resolved ##return the sentence with all references replaced
+	else:
+		return text ##else return text as it is 
+
+sent=resolve_co_reference(sent)
 l=[1,2,3]
 tagged_list=[[]]
 i=0
+doc=nlp(sent)
+print(sent)
 for token in doc:
 	if (token.lemma_=="be"):
 		l[0]="be"
@@ -115,7 +128,6 @@ while(i<len(tagged_list)-1):
 				subj=subj+" "+tagged_list[i][0]+" "+tagged_list[j][0]
 			elif(tagged_list[j][2]==1):
 				if(ind2!=-1 and ind2!=ind):
-					print("Hi")
 					find=find+1					
 					while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 						find=find+1
@@ -133,7 +145,6 @@ while(i<len(tagged_list)-1):
 										if(len(lis)==0):
 											lis.append(x-1)
 										lis.append(y)
-					print(lis)
 					for l in range(len(lis)):
 						n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
 					if(len(lis)==0):
@@ -142,13 +153,11 @@ while(i<len(tagged_list)-1):
 				ind =i+1
 
 			else:
-				print("Entered at ",i)
 				if(ind2==-1):
 					ind2=ind
 				ct=ind2
 				while(ct<i-1 and ((tagged_list[ct][1].find("NN")==-1) or (tagged_list[ct][2]==1 or tagged_list[ct][2]==2 ))):
 					ct=ct+1
-				print("Find= ",find,"Ind= ",ind2,"ct= ",ct,"flag= ",flag)
 				if(flag!=ind2):
 					n.append([tagged_list[x][0] for x in range(ind2,i)])
 					flag=ind2
@@ -159,16 +168,14 @@ while(i<len(tagged_list)-1):
 						find=find+1
 					n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 				ind=i+1 #ADDED NOW
-				print("Find= ",find,"Ind= ",ind2,"ct= ",ct,"flag= ",flag)
 
 
 
 		elif(j<len(tagged_list)-1 and tagged_list[j][1].find("VB")!=-1):
-			if(i+1<len(tagged_list)-1 and tagged_list[i+1][1]!="PRP"):
-				tagged_list[i][0]=subj
-			print(2,tagged_list[i][0],i)
+			# if(i+1<len(tagged_list)-1 and tagged_list[i+1][1]!="PRP"):
+			# 	tagged_list[i][0]=subj
+			#print(2,tagged_list[i][0],i)
 			if(ind2!=-1 and ind2!=ind):
-				print("Hi")
 				find=find+1					
 				while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 					find=find+1
@@ -186,7 +193,6 @@ while(i<len(tagged_list)-1):
 									if(len(lis)==0):
 										lis.append(x-1)
 									lis.append(y)
-				print(lis)
 				for l in range(len(lis)):
 					n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
 				if(len(lis)==0):
@@ -195,19 +201,17 @@ while(i<len(tagged_list)-1):
 			ind=i;
 
 	#print(subj)
-	if(tagged_list[i][1]=="PRP"):
-		tagged_list[i][0]=subj
+	# if(tagged_list[i][1]=="PRP"):
+	# 	tagged_list[i][0]=subj
 	i=i+1
 if(ind2!=-1 and ind2!=ind):
-	print("ind= ",ind,"ind2=",ind2," i=",i)
+	#print("ind= ",ind,"ind2=",ind2," i=",i)
 	find=find+1					
 	while(find<len(tagged_list)-1 and (tagged_list[find][1]!="CC"  and tagged_list[find][0] not in conj and tagged_list[find][0]!="," and tagged_list[find][0]!=";" and tagged_list[find][0]!=".")):
 		find=find+1
-	print("Printing..",find)
 	n.append([tagged_list[x][0] for x in range(ind2,i) if(x not in range(ct,find+1))])
 	ind2=-1;
 else:	
-	print("Hello")
 	for x in range(ind,i):
 		if(tagged_list[x][1]=="CC"  or tagged_list[x][0] in conj or tagged_list[x][0]=="," or tagged_list[x][0]==";" or tagged_list[x][0]=="."):
 			if(x>ind and x<i-1):
@@ -219,13 +223,11 @@ else:
 						if(len(lis)==0):
 							lis.append(x-1)
 						lis.append(y)
-	print(lis)
 	for l in range(len(lis)):
 		n.append([tagged_list[x][0] for x in range(ind,i) if(x == lis[l] or x>lis[len(lis)-1]) or (l==0 and x<lis[0]) or (l>0 and x>lis[l-1]) and x<=lis[l]])
 	if(len(lis)==0):
 		n.append([tagged_list[x][0] for x in range(ind,i)])
 lis=[]
 print(tagged_list)
+print()
 print(n)
-
-
