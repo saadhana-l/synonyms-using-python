@@ -55,7 +55,7 @@ conj = set(('and', 'or' ,'but','while','so','because'))
 # #print(li)
 
 
-
+#CO REF
 import spacy
 nlp = spacy.load('en_core_web_sm')
 import neuralcoref
